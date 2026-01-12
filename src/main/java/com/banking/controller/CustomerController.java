@@ -23,6 +23,16 @@ public class CustomerController {
     @PostMapping("/addCustomer")
     public ResponseEntity<?> addCustomer(@RequestBody Customer customer) {
         try {
+            if (customer.getName() == null || customer.getName().isBlank()) {
+                return new ResponseEntity<>("Name is required", HttpStatus.BAD_REQUEST);
+            }
+            if (customer.getEmail() == null || customer.getEmail().isBlank()) {
+                return new ResponseEntity<>("Email is required", HttpStatus.BAD_REQUEST);
+            }
+            if (customer.getMobile() == null || customer.getMobile().isBlank()) {
+                return new ResponseEntity<>("Mobile is required", HttpStatus.BAD_REQUEST);
+            }
+
             Customer savedCustomer = customerService.createCustomer(customer);
 
             Map<String, Object> response = new HashMap<>();
@@ -44,9 +54,7 @@ public class CustomerController {
     public ResponseEntity<?> getAllCustomers() {
         try {
             List<Customer> customers = customerService.getAllCustomers();
-
             return new ResponseEntity<>(customers, HttpStatus.OK);
-
         } catch (Exception e) {
             return new ResponseEntity<>("Error while fetching customers", HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -56,6 +64,10 @@ public class CustomerController {
     @GetMapping("/getCustomer/{id}")
     public ResponseEntity<?> getCustomerById(@PathVariable Long id) {
         try {
+            if (id <= 0) {
+                return new ResponseEntity<>("Invalid customer id", HttpStatus.BAD_REQUEST);
+            }
+
             Customer customer = customerService.getCustomerById(id);
 
             Map<String, Object> response = new HashMap<>();
@@ -78,6 +90,16 @@ public class CustomerController {
             @PathVariable Long id,
             @RequestBody Customer customer) {
         try {
+            if (id <= 0) {
+                return new ResponseEntity<>("Invalid customer id", HttpStatus.BAD_REQUEST);
+            }
+            if (customer.getName() != null && customer.getName().isBlank()) {
+                return new ResponseEntity<>("Name cannot be empty", HttpStatus.BAD_REQUEST);
+            }
+            if (customer.getEmail() != null && customer.getEmail().isBlank()) {
+                return new ResponseEntity<>("Email cannot be empty", HttpStatus.BAD_REQUEST);
+            }
+
             Customer updatedCustomer = customerService.updateCustomer(id, customer);
 
             Map<String, Object> response = new HashMap<>();
@@ -95,9 +117,13 @@ public class CustomerController {
     }
 
     // ================= DELETE CUSTOMER =================
-    @DeleteMapping("/DeleteCustomer/{id}")
+    @DeleteMapping("/deleteCustomer/{id}")
     public ResponseEntity<?> deleteCustomer(@PathVariable Long id) {
         try {
+            if (id <= 0) {
+                return new ResponseEntity<>("Invalid customer id", HttpStatus.BAD_REQUEST);
+            }
+
             Customer customer = customerService.getCustomerById(id);
             customerService.deleteCustomer(id);
 
