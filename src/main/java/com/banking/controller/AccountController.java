@@ -1,67 +1,62 @@
 package com.banking.controller;
 
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-
-import com.banking.entity.Account;
+import com.banking.entity.*;
 import com.banking.service.AccountService;
 
 @RestController
 @RequestMapping("/accounts")
 public class AccountController {
 
-	@Autowired
+    @Autowired
     private AccountService accountService;
 
-    // Constructor Injection (Best Practice)
-    public AccountController(AccountService accountService) {
-        this.accountService = accountService;
-    }
-
-    // ================= CREATE ACCOUNT =================
-    // POST /accounts/{customerId}
+    // CREATE ACCOUNT
     @PostMapping("/{customerId}")
     public ResponseEntity<Account> createAccount(
             @PathVariable Long customerId,
-            @RequestBody Account account) {
+            @RequestBody Account req) {
 
-        Account createdAccount = accountService.createAccount(customerId, account);
-        return new ResponseEntity<>(createdAccount, HttpStatus.CREATED);
+        Account account = new Account();
+        account.setAccountNumber(req.getAccountNumber());
+        account.setAccountType(req.getAccountType());
+        account.setBalance(req.getBalance());
+
+        return new ResponseEntity<>(
+                accountService.createAccount(customerId, account),
+                HttpStatus.CREATED
+        );
     }
 
-    // ================= GET ALL ACCOUNTS =================
-    // GET /accounts
+    // GET ALL
     @GetMapping("/getAllAccount")
     public ResponseEntity<List<Account>> getAllAccounts() {
         return ResponseEntity.ok(accountService.getAllAccounts());
     }
 
-    // ================= GET ACCOUNT BY ID =================
-    // GET /accounts/{id}
+    // GET BY ID
     @GetMapping("/{id}")
     public ResponseEntity<Account> getAccountById(@PathVariable Long id) {
         return ResponseEntity.ok(accountService.getAccountById(id));
     }
 
-    // ================= UPDATE ACCOUNT =================
-    // PUT /accounts/{id}
+    // UPDATE
     @PutMapping("/{id}")
     public ResponseEntity<Account> updateAccount(
             @PathVariable Long id,
             @RequestBody Account account) {
-
         return ResponseEntity.ok(accountService.updateAccount(id, account));
     }
 
-    // ================= DELETE ACCOUNT =================
-    // DELETE /accounts/{id}
+    // DELETE
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAccount(@PathVariable Long id) {
         accountService.deleteAccount(id);
         return ResponseEntity.noContent().build();
     }
+
+
 }
