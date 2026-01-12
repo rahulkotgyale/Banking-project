@@ -38,7 +38,7 @@ public class ATMAccountController {
         return ResponseEntity.ok(service.getById(id));
     }
 
-    // Get By Card Number
+    // Get By Card Number by id
     @GetMapping("/card/{cardNumber}")
     public ResponseEntity<ATMAccount> getByCard(@PathVariable String cardNumber) {
         return ResponseEntity.ok(service.getByCard(cardNumber));
