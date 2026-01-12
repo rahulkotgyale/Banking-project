@@ -2,8 +2,7 @@ package com.banking.controller;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import com.banking.entity.Transaction;
@@ -21,37 +20,49 @@ public class TransactionController {
     }
 
     // ================= CREATE TRANSACTION =================
-    // POST /transactions/{accountId}
     @PostMapping("/{accountId}")
-    public ResponseEntity<Transaction> createTransaction(
+    public ResponseEntity<?> createTransaction(
             @PathVariable Long accountId,
             @RequestBody Transaction transaction) {
-
-        return new ResponseEntity<>(
-                transactionService.createTransaction(accountId, transaction),
-                HttpStatus.CREATED
-        );
+        try {
+            return new ResponseEntity<>(
+                    transactionService.createTransaction(accountId, transaction),
+                    HttpStatus.CREATED
+            );
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     // ================= GET ALL TRANSACTIONS =================
-    // GET /transactions
     @GetMapping
-    public ResponseEntity<List<Transaction>> getAllTransactions() {
-        return ResponseEntity.ok(transactionService.getAllTransactions());
+    public ResponseEntity<?> getAllTransactions() {
+        try {
+            List<Transaction> list = transactionService.getAllTransactions();
+            return new ResponseEntity<>(list, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     // ================= GET TRANSACTION BY ID =================
-    // GET /transactions/{id}
     @GetMapping("/{id}")
-    public ResponseEntity<Transaction> getTransactionById(@PathVariable Long id) {
-        return ResponseEntity.ok(transactionService.getTransactionById(id));
+    public ResponseEntity<?> getTransactionById(@PathVariable Long id) {
+        try {
+            return new ResponseEntity<>(transactionService.getTransactionById(id), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
     }
 
     // ================= DELETE TRANSACTION =================
-    // DELETE /transactions/{id}
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTransaction(@PathVariable Long id) {
-        transactionService.deleteTransaction(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> deleteTransaction(@PathVariable Long id) {
+        try {
+            transactionService.deleteTransaction(id);
+            return new ResponseEntity<>("Transaction deleted successfully", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

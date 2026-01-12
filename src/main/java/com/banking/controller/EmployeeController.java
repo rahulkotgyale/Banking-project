@@ -2,9 +2,7 @@ package com.banking.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import com.banking.entity.Employee;
@@ -14,10 +12,9 @@ import com.banking.service.EmployeeService;
 @RequestMapping("/employees")
 public class EmployeeController {
 
-	@Autowired
-    private EmployeeService employeeService;
+    private final EmployeeService employeeService;
 
-    // Constructor Injection
+    // Constructor Injection (recommended)
     public EmployeeController(EmployeeService employeeService) {
         this.employeeService = employeeService;
     }
@@ -25,9 +22,16 @@ public class EmployeeController {
     // ================= CREATE EMPLOYEE =================
     // POST /employees/{branchId}
     @PostMapping("/{branchId}")
-    public ResponseEntity<Employee> createEmployee(
+    public ResponseEntity<?> createEmployee(
             @PathVariable Long branchId,
             @RequestBody Employee employee) {
+
+        if (branchId <= 0) {
+            return new ResponseEntity<>("Invalid branch id", HttpStatus.BAD_REQUEST);
+        }
+        if (employee.getName() == null || employee.getName().isBlank()) {
+            return new ResponseEntity<>("Employee name is required", HttpStatus.BAD_REQUEST);
+        }
 
         return new ResponseEntity<>(
                 employeeService.createEmployee(branchId, employee),
@@ -36,33 +40,43 @@ public class EmployeeController {
     }
 
     // ================= GET ALL EMPLOYEES =================
-    // GET /employees
     @GetMapping
     public ResponseEntity<List<Employee>> getAllEmployees() {
         return ResponseEntity.ok(employeeService.getAllEmployees());
     }
 
     // ================= GET EMPLOYEE BY ID =================
-    // GET /employees/{id}
     @GetMapping("/{id}")
-    public ResponseEntity<Employee> getEmployeeById(@PathVariable Long id) {
+    public ResponseEntity<?> getEmployeeById(@PathVariable Long id) {
+        if (id <= 0) {
+            return new ResponseEntity<>("Invalid employee id", HttpStatus.BAD_REQUEST);
+        }
         return ResponseEntity.ok(employeeService.getEmployeeById(id));
     }
 
     // ================= UPDATE EMPLOYEE =================
-    // PUT /employees/{id}
     @PutMapping("/{id}")
-    public ResponseEntity<Employee> updateEmployee(
+    public ResponseEntity<?> updateEmployee(
             @PathVariable Long id,
             @RequestBody Employee employee) {
+
+        if (id <= 0) {
+            return new ResponseEntity<>("Invalid employee id", HttpStatus.BAD_REQUEST);
+        }
+        if (employee.getName() != null && employee.getName().isBlank()) {
+            return new ResponseEntity<>("Employee name cannot be empty", HttpStatus.BAD_REQUEST);
+        }
+
 
         return ResponseEntity.ok(employeeService.updateEmployee(id, employee));
     }
 
     // ================= DELETE EMPLOYEE =================
-    // DELETE /employees/{id}
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
+    public ResponseEntity<?> deleteEmployee(@PathVariable Long id) {
+        if (id <= 0) {
+            return new ResponseEntity<>("Invalid employee id", HttpStatus.BAD_REQUEST);
+        }
         employeeService.deleteEmployee(id);
         return ResponseEntity.noContent().build();
     }

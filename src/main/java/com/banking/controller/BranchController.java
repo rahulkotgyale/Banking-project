@@ -1,7 +1,6 @@
 package com.banking.controller;
 
 import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,9 +19,16 @@ public class BranchController {
         this.branchService = branchService;
     }
 
-    // CREATE BRANCH
+    // CREATE BRANCH with conditions
     @PostMapping
-    public ResponseEntity<Branch> createBranch(@RequestBody Branch branch) {
+    public ResponseEntity<?> createBranch(@RequestBody Branch branch) {
+        if (branch.getBranchName() == null || branch.getBranchName().isBlank()) {
+            return new ResponseEntity<>("Branch name is required", HttpStatus.BAD_REQUEST);
+        }
+        if (branch.getCity() == null || branch.getCity().isBlank()) {
+            return new ResponseEntity<>("City is required", HttpStatus.BAD_REQUEST);
+        }
+
         return new ResponseEntity<>(
                 branchService.createBranch(branch),
                 HttpStatus.CREATED
@@ -35,24 +41,40 @@ public class BranchController {
         return ResponseEntity.ok(branchService.getAllBranches());
     }
 
-    // GET BRANCH BY ID
+    // GET BRANCH BY ID with condition
     @GetMapping("/{id}")
-    public ResponseEntity<Branch> getBranchById(@PathVariable Long id) {
+    public ResponseEntity<?> getBranchById(@PathVariable Long id) {
+        if (id <= 0) {
+            return new ResponseEntity<>("Invalid branch id", HttpStatus.BAD_REQUEST);
+        }
         return ResponseEntity.ok(branchService.getBranchById(id));
     }
 
-    // UPDATE BRANCH
+    // UPDATE BRANCH with condition
     @PutMapping("/{id}")
-    public ResponseEntity<Branch> updateBranch(
+    public ResponseEntity<?> updateBranch(
             @PathVariable Long id,
             @RequestBody Branch branch) {
+
+        if (id <= 0) {
+            return new ResponseEntity<>("Invalid branch id", HttpStatus.BAD_REQUEST);
+        }
+        if (branch.getBranchName() != null && branch.getBranchName().isBlank()) {
+            return new ResponseEntity<>("Branch name cannot be empty", HttpStatus.BAD_REQUEST);
+        }
+        if (branch.getCity() != null && branch.getCity().isBlank()) {
+            return new ResponseEntity<>("City cannot be empty", HttpStatus.BAD_REQUEST);
+        }
 
         return ResponseEntity.ok(branchService.updateBranch(id, branch));
     }
 
-    // DELETE BRANCH
+    // DELETE BRANCH with condition
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBranch(@PathVariable Long id) {
+    public ResponseEntity<?> deleteBranch(@PathVariable Long id) {
+        if (id <= 0) {
+            return new ResponseEntity<>("Invalid branch id", HttpStatus.BAD_REQUEST);
+        }
         branchService.deleteBranch(id);
         return ResponseEntity.noContent().build();
     }
